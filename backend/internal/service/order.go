@@ -23,7 +23,9 @@ type OrderConverter interface {
 }
 
 var (
-	ErrOrderExists = errors.New("order already exists")
+	ErrOrderExists   = errors.New("order already exists")
+	ErrOrderNotFound = errors.New("order not found")
+	ErrInvalidUUID   = errors.New("invalid uuid")
 )
 
 type OrderService struct {

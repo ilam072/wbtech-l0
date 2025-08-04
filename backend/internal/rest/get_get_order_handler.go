@@ -6,6 +6,14 @@ import (
 	"github.com/ilam072/wbtech-l0/backend/internal/service"
 )
 
+// @Summary Get order by ID
+// @Description Returns order details by given ID
+// @Tags order
+// @Param id path string true "order uid"
+// @Success 200 {object} dto.Order
+// @Failure 404 {object} ErrorResp "order not found"
+// @Failure 500 {object} ErrorResp "internal server error"
+// @Router /api/order/{id} [get]
 func (h *Handler) GetOrderHandler(ctx *fiber.Ctx) error {
 	orderId := ctx.Params("id")
 

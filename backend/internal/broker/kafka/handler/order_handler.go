@@ -11,6 +11,7 @@ import (
 	"log/slog"
 )
 
+//go:generate mockgen -source=order_handler.go -destination=../../../../mocks/kafka/mock_order_handler.go -package kafka
 type Consumer interface {
 	Consume(context.Context) (kafka.Message, error)
 	Close() error

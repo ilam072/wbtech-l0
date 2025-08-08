@@ -3,9 +3,10 @@ package rest
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/swagger"
-	_ "github.com/ilam072/wbtech-l0/backend/docs"
 	"github.com/ilam072/wbtech-l0/backend/internal/types/dto"
+	_ "github.com/ilam072/wbtech-l0/docs"
 	"log/slog"
 )
 
@@ -24,6 +25,10 @@ func NewHandler(log *slog.Logger, s OrderService) *Handler {
 	api := fiber.New()
 
 	api.Get("/swagger/*", swagger.HandlerDefault)
+
+	api.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+	}))
 
 	h := &Handler{
 		log: log,

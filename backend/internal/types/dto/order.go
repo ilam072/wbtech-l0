@@ -32,7 +32,7 @@ type Delivery struct {
 }
 
 type Payment struct {
-	Transaction  string `json:"transaction" validate:"required,eqcsfield=Order.OrderUID"`
+	Transaction  string `json:"transaction" validate:"required"`
 	RequestID    string `json:"request_id"`
 	Currency     string `json:"currency" validate:"required"`
 	Provider     string `json:"provider" validate:"required"`

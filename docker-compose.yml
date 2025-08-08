@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-    postgres:
+    postgres-l0:
         image: postgres:16-alpine
-        container_name: postgres
+        container_name: postgres-l0
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
@@ -15,23 +15,23 @@ services:
         networks:
             - orders-service
 
-    kafka:
+    kafka-l0:
         image: bitnami/kafka:latest
         ports:
             - "9092:9092"
-        container_name: kafka
+        container_name: kafka-l0
         environment:
             - KAFKA_ENABLE_KRAFT=yes
             - KAFKA_CFG_NODE_ID=0
             - KAFKA_CFG_PROCESS_ROLES=broker,controller
-            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+            - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-l0:9093
             - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
             - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092
             - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
             - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
             - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
         healthcheck:
-            test: [ "CMD", "kafka-topics.sh", "--bootstrap-server", "kafka:9092", "--list" ]
+            test: [ "CMD", "kafka-topics.sh", "--bootstrap-server", "kafka-l0:9092", "--list" ]
             interval: 10s
             timeout: 5s
             retries: 10
@@ -40,16 +40,17 @@ services:
         networks:
             - orders-service
 
-    migrate:
+    migrate-l0:
         image: migrate/migrate:v4.15.2
-        container_name: migrate
+        container_name: migrate-l0
         depends_on:
-            - postgres
+            - postgres-l0
         command: [
             "-path=/migrations",
-            "-database=postgres://postgres:postgres@postgres:5432/orders_service?sslmode=disable",
+            "-database=postgres://postgres:postgres@postgres-l0:5432/orders_service?sslmode=disable",
             "up"
         ]
+        restart: on-failure
         volumes:
             - ./migrations:/migrations
         networks:

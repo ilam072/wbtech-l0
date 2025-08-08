@@ -1,0 +1,260 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API service using Kafka, PostgreSQL and in-memory cache",
+        "title": "Order Service",
+        "contact": {}
+    },
+    "host": "localhost:8082",
+    "basePath": "/",
+    "paths": {
+        "/api/order/{id}": {
+            "get": {
+                "description": "Returns order details by given ID",
+                "tags": [
+                    "order"
+                ],
+                "summary": "Get order by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "order uid",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.Order"
+                        }
+                    },
+                    "404": {
+                        "description": "order not found",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/rest.ErrorResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.Delivery": {
+            "type": "object",
+            "required": [
+                "address",
+                "city",
+                "email",
+                "name",
+                "phone",
+                "region",
+                "zip"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "zip": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Item": {
+            "type": "object",
+            "required": [
+                "brand",
+                "chrt_id",
+                "name",
+                "nm_id",
+                "price",
+                "rid",
+                "sale",
+                "size",
+                "status",
+                "total_price",
+                "track_number"
+            ],
+            "properties": {
+                "brand": {
+                    "type": "string"
+                },
+                "chrt_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nm_id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "rid": {
+                    "type": "string"
+                },
+                "sale": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "total_price": {
+                    "type": "integer"
+                },
+                "track_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Order": {
+            "type": "object",
+            "required": [
+                "customer_id",
+                "delivery",
+                "delivery_service",
+                "entry",
+                "items",
+                "locale",
+                "oof_shard",
+                "order_uid",
+                "payment",
+                "shardkey",
+                "sm_id",
+                "track_number"
+            ],
+            "properties": {
+                "customer_id": {
+                    "type": "string"
+                },
+                "date_created": {
+                    "type": "string"
+                },
+                "delivery": {
+                    "$ref": "#/definitions/dto.Delivery"
+                },
+                "delivery_service": {
+                    "type": "string"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "internal_signature": {
+                    "type": "string"
+                },
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "$ref": "#/definitions/dto.Item"
+                    }
+                },
+                "locale": {
+                    "type": "string"
+                },
+                "oof_shard": {
+                    "type": "string"
+                },
+                "order_uid": {
+                    "type": "string"
+                },
+                "payment": {
+                    "$ref": "#/definitions/dto.Payment"
+                },
+                "shardkey": {
+                    "type": "string"
+                },
+                "sm_id": {
+                    "type": "integer"
+                },
+                "track_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.Payment": {
+            "type": "object",
+            "required": [
+                "amount",
+                "bank",
+                "currency",
+                "custom_fee",
+                "delivery_cost",
+                "goods_total",
+                "payment_dt",
+                "provider",
+                "transaction"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "integer"
+                },
+                "bank": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "custom_fee": {
+                    "type": "integer"
+                },
+                "delivery_cost": {
+                    "type": "integer"
+                },
+                "goods_total": {
+                    "type": "integer"
+                },
+                "payment_dt": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "transaction": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.ErrorResp": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

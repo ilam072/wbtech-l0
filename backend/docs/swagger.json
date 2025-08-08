@@ -1,0 +1,11 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "REST API service using Kafka, PostgreSQL and in-memory cache",
+        "title": "Order Service",
+        "contact": {}
+    },
+    "host": "localhost:8082",
+    "basePath": "/",
+    "paths": {}
+}

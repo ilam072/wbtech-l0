@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	_ "github.com/ilam072/wbtech-l0/backend/docs"
 	"github.com/ilam072/wbtech-l0/backend/internal/types/dto"
 	"log/slog"
 )

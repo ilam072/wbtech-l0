@@ -1,0 +1,8 @@
+basePath: /
+host: localhost:8082
+info:
+  contact: {}
+  description: REST API service using Kafka, PostgreSQL and in-memory cache
+  title: Order Service
+paths: {}
+swagger: "2.0"

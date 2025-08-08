@@ -73,4 +73,4 @@ http://localhost:8082/swagger/
 * `make down` — остановить докер контейнеры
 * `make producer` — запустить скрипт для отправки сообщений в Kafka
 * `make topics` — посмотреть топики в Kafka
-* `make topics` — посмотреть сообщения, отправленные в Kafka
+* `make messages` — посмотреть сообщения, отправленные в Kafka

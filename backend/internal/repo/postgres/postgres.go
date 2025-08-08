@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/doug-martin/goqu/v9"
+	"github.com/google/uuid"
 	"github.com/ilam072/wbtech-l0/backend/internal/repo"
 	"github.com/ilam072/wbtech-l0/backend/internal/types/domain"
 	"github.com/ilam072/wbtech-l0/backend/pkg/e"
@@ -231,4 +232,174 @@ func (r *OrderRepo) GetOrder(ctx context.Context, ID string) (domain.FullOrder, 
 		Payment:  payment,
 		Items:    items,
 	}, nil
+}
+
+func (r *OrderRepo) GetLastOrders(ctx context.Context, limit int) ([]domain.FullOrder, error) {
+	const op = "postgres.GetLastOrders()"
+
+	sql, args, err := goqu.From(goqu.T("orders").As("o")).
+		Join(goqu.T("delivery").As("d"), goqu.On(goqu.Ex{"o.id": goqu.I("d.order_id")})).
+		Join(goqu.T("payment").As("p"), goqu.On(goqu.Ex{"o.id": goqu.I("p.order_id")})).
+		Select(
+
+			goqu.I("o.id"),
+			goqu.I("o.track_number"),
+			goqu.I("o.entry"),
+			goqu.I("o.locale"),
+			goqu.I("o.internal_signature"),
+			goqu.I("o.customer_id"),
+			goqu.I("o.delivery_service"),
+			goqu.I("o.shardkey"),
+			goqu.I("o.sm_id"),
+			goqu.I("o.date_created"),
+			goqu.I("o.oof_shard"),
+
+			goqu.I("d.id"),
+			goqu.I("d.order_id"),
+			goqu.I("d.name"),
+			goqu.I("d.phone"),
+			goqu.I("d.zip"),
+			goqu.I("d.city"),
+			goqu.I("d.address"),
+			goqu.I("d.region"),
+			goqu.I("d.email"),
+
+			goqu.I("p.transaction"),
+			goqu.I("p.order_id"),
+			goqu.I("p.request_id"),
+			goqu.I("p.currency"),
+			goqu.I("p.provider"),
+			goqu.I("p.amount"),
+			goqu.I("p.payment_dt"),
+			goqu.I("p.bank"),
+			goqu.I("p.delivery_cost"),
+			goqu.I("p.goods_total"),
+			goqu.I("p.custom_fee"),
+		).
+		Order(goqu.I("o.date_created").Desc()).
+		Limit(uint(limit)).
+		ToSQL()
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	rows, err := r.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+	defer rows.Close()
+
+	var orders []domain.FullOrder
+
+	for rows.Next() {
+		var (
+			order    domain.Order
+			delivery domain.Delivery
+			payment  domain.Payment
+		)
+
+		err = rows.Scan(
+
+			&order.ID,
+			&order.TrackNumber,
+			&order.Entry,
+			&order.Locale,
+			&order.InternalSignature,
+			&order.CustomerID,
+			&order.DeliveryService,
+			&order.ShardKey,
+			&order.SmID,
+			&order.DateCreated,
+			&order.OofShard,
+
+			&delivery.ID,
+			&delivery.OrderID,
+			&delivery.Name,
+			&delivery.Phone,
+			&delivery.Zip,
+			&delivery.City,
+			&delivery.Address,
+			&delivery.Region,
+			&delivery.Email,
+
+			&payment.Transaction,
+			&payment.OrderID,
+			&payment.RequestID,
+			&payment.Currency,
+			&payment.Provider,
+			&payment.Amount,
+			&payment.PaymentDt,
+			&payment.Bank,
+			&payment.DeliveryCost,
+			&payment.GoodsTotal,
+			&payment.CustomFee,
+		)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		items, err := r.getItemsByOrderID(ctx, order.ID)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		fullOrder := domain.FullOrder{
+			Order:    order,
+			Delivery: delivery,
+			Payment:  payment,
+			Items:    items,
+		}
+
+		orders = append(orders, fullOrder)
+	}
+
+	if len(orders) == 0 {
+		return nil, nil
+	}
+
+	return orders, nil
+}
+
+func (r *OrderRepo) getItemsByOrderID(ctx context.Context, orderID uuid.UUID) ([]domain.Item, error) {
+	const op = "postgres.getItemsByOrderID"
+
+	sql, args, err := goqu.From("items").
+		Where(goqu.Ex{"order_id": orderID}).
+		ToSQL()
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+
+	rows, err := r.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, e.Wrap(op, err)
+	}
+	defer rows.Close()
+
+	var items []domain.Item
+	for rows.Next() {
+		var item domain.Item
+
+		err = rows.Scan(
+			&item.ChrtID,
+			&item.OrderID,
+			&item.TrackNumber,
+			&item.Price,
+			&item.Rid,
+			&item.Name,
+			&item.Sale,
+			&item.Size,
+			&item.TotalPrice,
+			&item.NmID,
+			&item.Brand,
+			&item.Status,
+		)
+		if err != nil {
+			return nil, e.Wrap(op, err)
+		}
+
+		items = append(items, item)
+	}
+
+	return items, nil
 }

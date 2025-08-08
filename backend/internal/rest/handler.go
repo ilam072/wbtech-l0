@@ -8,6 +8,7 @@ import (
 	"log/slog"
 )
 
+//go:generate mockgen -source=handler.go -destination=../../mocks/http/mock_handler.go -package http
 type OrderService interface {
 	GetOrder(ctx context.Context, orderId string) (dto.Order, error)
 }

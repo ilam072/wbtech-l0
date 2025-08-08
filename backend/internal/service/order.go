@@ -7,6 +7,7 @@ import (
 	"github.com/ilam072/wbtech-l0/backend/internal/types/dto"
 )
 
+//go:generate mockgen -source=order.go -destination=../../mocks/service/mock_order.go -package=mocks
 type OrderRepo interface {
 	CreateOrder(context.Context, domain.Order, domain.Delivery, domain.Payment, []domain.Item) error
 	GetOrder(ctx context.Context, ID string) (domain.FullOrder, error)
